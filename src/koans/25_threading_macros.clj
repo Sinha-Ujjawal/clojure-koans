@@ -1,5 +1,6 @@
 (ns koans.25-threading-macros
-  (:require [koan-engine.core :refer :all]))
+  (:require [koan-engine.core :refer [meditations]]
+            [clojure.string :as string]))
 
 (def a-list
   '(1 2 3 4 5))
@@ -7,31 +8,31 @@
 (def a-list-with-maps
   '({:a 1} {:a 2} {:a 3}))
 
-(defn function-that-takes-a-map [map a b]
+(defn function-that-takes-a-map [map _ _]
   (get map :a))
 
-(defn function-that-takes-a-coll [a b coll]
+(defn function-that-takes-a-coll [_ _ coll]
   (map :a coll))
 
 (meditations
  "We can use thread first for more readable sequential operations"
- (= __
+ (= {:a 1}
     (-> {}
         (assoc :a 1)))
 
  "Consider also the case of strings"
- (= __
+ (= "Hello world, and moon, and stars"
     (-> "Hello world"
         (str ", and moon")
         (str ", and stars")))
 
  "When a function has no arguments to partially apply, just reference it"
- (= __
+ (= "String with a trailing space"
     (-> "String with a trailing space "
-        clojure.string/trim))
+        string/trim))
 
  "Most operations that take a scalar value as an argument can be threaded-first"
- (= __
+ (= 6
     (-> {}
         (assoc :a 1)
         (assoc :b 2)
@@ -41,18 +42,18 @@
         (get-in [:c :e])))
 
  "We can use functions we have written ourselves that follow this pattern"
- (= __
+ (= 1
     (-> {}
         (assoc :a 1)
         (function-that-takes-a-map "hello" "there")))
 
  "We can also thread last using ->>"
- (= __
+ (= [2 3 4]
     (->> [1 2 3]
          (map inc)))
 
  "Most operations that take a collection can be threaded-last"
- (= __
+ (= 12
     (->> a-list
          (map inc)
          (filter even?)
@@ -60,7 +61,7 @@
          (reduce +)))
 
  "We can use functions we have written ourselves that follow this pattern"
- (= __
+ (= [1 2 3]
     (->> a-list-with-maps
          (function-that-takes-a-coll "hello" "there")
          (into []))))
